@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var QueryURL = "https://corsproxy.github.io/";
+        $.getJSON(QueryURL, function (data) {
+            if (data && data != null && typeof data == "object" && data.contents && data.contents != null && typeof data.contents == "string") {
+                if (data.length > 0) {
+                    $("#divResult0").html(data);
+                }
+            }
+        });
+    });
+</script>
+<h2>Load ExternalPage Content</h2>
+<div class="row" id="divResult0">
+
+</div>
+<div class="row" id="divResult1">
+
+</div>
+

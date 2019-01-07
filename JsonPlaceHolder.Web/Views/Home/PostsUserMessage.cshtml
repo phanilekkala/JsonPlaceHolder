@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "PostsUserMessage";
+}
+
+<script>
+    $(document).ready(function () {
+        $.ajax(
+            {
+                url: 'http://localhost:1427/posts?userId=',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var htmlstr = '<table class="table"><tr><th>ID</th><th>Title</th><th>Message</th></tr>';
+                    var userId = @ViewBag.UserId;
+                    var postId = @ViewBag.PostId;
+
+                    var json = data.filter(function (i, n) {
+                        return n.userId === userId;
+                    });
+                    if (postId != null) {
+                        json = data.filter(function (i, n) {
+                            return n.userId === userId && n.id === postId;
+                        });
+                    }
+                    for (var k in json) {
+
+                        htmlstr += '<tr><td>' + data[k].id + '</td><td>' + data[k].title + '</td><td>' + data[k].body + '</td></tr>'
+
+                    }
+                    htmlstr += '</table>';
+                    $("#partialDiv").html(htmlstr);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+    });
+</script>
+<h2>Posts filter with User or Message</h2>
+
+<div class="row">
+    <div id="partialDiv">
+    </div>
+</div>
+

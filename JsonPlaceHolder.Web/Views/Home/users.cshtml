@@ -1,0 +1,73 @@
+﻿@model IEnumerable<JsonPlaceHolder.Model.User>
+
+@{
+    ViewBag.Title = "Users";
+}
+
+<h2>User Details</h2>
+<div class="row">
+
+</div>
+<div class="row">
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Phone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Website)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.Street): </b>@Html.DisplayFor(modelItem => item.Address.Street)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.Suite): </b>@Html.DisplayFor(modelItem => item.Address.Suite)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.City): </b>@Html.DisplayFor(modelItem => item.Address.City)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.Zipcode): </b>@Html.DisplayFor(modelItem => item.Address.Zipcode)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.Geo.Lng): </b>@Html.DisplayFor(modelItem => item.Address.Geo.Lng)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Address.Geo.Lat): </b>@Html.DisplayFor(modelItem => item.Address.Geo.Lat)</div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Website)
+                </td>
+                <td>
+                    <div><b>@Html.DisplayNameFor(model => model.Company.Name): </b>@Html.DisplayFor(modelItem => item.Company.Name)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Company.CatchPhrase): </b>@Html.DisplayFor(modelItem => item.Company.CatchPhrase)</div>
+                    <div><b>@Html.DisplayNameFor(model => model.Company.BS): </b>@Html.DisplayFor(modelItem => item.Company.BS)</div>
+
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "Posts";
+}
+
+<script type="text/javascript">
+    function onChangeUser() {
+        var userId = $('#ddlUsers').val();
+        $.ajax(
+            {
+                url: 'http://localhost:1427/posts?userId=',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var htmlstr = '<table class="table"><tr><th>ID</th><th>Title</th><th>Message</th></tr>';
+                    for (var k in data) {
+                        if (userId == data[k].userId) {
+                            htmlstr += '<tr><td>' + data[k].id + '</td><td>' + data[k].title + '</td><td>' + data[k].body + '</td></tr>'
+                        }
+                    }
+                    htmlstr += '</table>';
+                    $("#partialDiv").html(htmlstr);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+    };
+
+    $(document).ready(function () {
+        var userId = JSON.stringify(@ViewBag.UserId);
+        var postId = JSON.stringify(@ViewBag.PostId);
+        $.ajax(   
+            {
+                url: 'http://localhost:1427/posts?userId=',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var htmlstr = '<table class="table"><tr><th>User ID</th><th>Post ID</th><th>Title</th><th>Message</th></tr>';
+                    
+
+                    var json = data;
+
+                    if (userId !=null && postId != null) {
+                        json = data.filter(con => con.userId == userId && con.id == postId);                        
+                    }
+                    else if (userId != null) {
+                        json = data.filter(con=> con.userId == userId);                        
+                    }
+                    
+                    for (var k in json) {
+                        
+                        htmlstr += '<tr><td>' + json[k].userId + '</td><td>' + json[k].id + '</td><td>' + json[k].title + '</td><td>' + json[k].body + '</td></tr>'
+                        
+                    }
+                    htmlstr += '</table>';
+                    $("#partialDiv").html(htmlstr);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+    });
+</script>
+<h2>Posts</h2>
+@if (ViewBag.UserId == null && ViewBag.PostId == null) {
+<div class="row">
+    <select class="form-control" id="ddlUsers" name="ddlUsers" onchange="onChangeUser()">
+        <option value="0">Select User</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+    </select>
+</div>
+}
+<div class="row">
+    <div id="partialDiv">
+    </div>
+</div>
+    

@@ -1,0 +1,328 @@
+﻿
+@{
+    ViewBag.Title = "Person Details";
+}
+<style>
+    input {
+        margin-bottom: 3px;
+    }
+</style>
+<script>
+    function clickPerson(event) {
+        console.log('got here');
+        var thisClicked = event.target;
+        var personID = thisClicked.innerText.split(" ")[0]; //ID
+        var firstName = thisClicked.innerText.split(" ")[1]; //First Name
+        var lastName = thisClicked.innerText.split(" ")[2]; //last Name
+        $("#txtID").val(personID);        
+        $("#txtUpdFirstName").val(firstName);
+        $("#txtUpdLastName").val(lastName);
+    }
+
+    function SearchPersonDetails() {
+        LableClear();
+        var searchFirstName = $('#txtSearchFirstName').val();
+        var searchLastName = $('#txtSearchLastName').val();
+        if (searchFirstName != "" || searchLastName != "") {
+            $.ajax(
+                {
+                    url: 'http://localhost:1427/person?fname=' + searchFirstName + '&lname=' + searchLastName,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data == null) {
+                            $("#lblName").text("Search result not found");
+                        } else {
+                            var fullName = data.ID + ' ' + data.FirstName + ' ' + data.LastName;
+                            $("#lblName").text(fullName);
+                            $("#txtSearchFirstName").val(data.FirstName);
+                            $("#txtSearchLastName").val(data.LastName);
+
+                            //$("#txtUpdFirstName").val(data.FirstName);
+                            //$("#txtUpdLastName").val(data.LastName);
+                            //$("#txtID").val(data.ID);
+
+                            $("#lblName").click(clickPerson);
+
+                            $("#hdnID").val(data.ID);
+                        }
+
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+        }
+        else {
+            $("#lblName").text("Please enter search name");
+        }
+    }
+    function AddPerson(opt) {
+        var fName = "";
+        var lName = "";
+        var hdnID = "";
+
+        if (opt == '2') {   //update
+            fName = $('#txtUpdFirstName').val();
+            lName = $('#txtUpdLastName').val();
+            hdnID = $('#hdnID').val();
+        }
+        else {  //insert
+            fName = $('#txtFirstName').val();
+            lName = $('#txtLastName').val();
+        }
+        if (fName != "" && lName != "") {
+            var person = { FirstName: fName, LastName: lName };
+            var per = JSON.stringify({
+                FirstName: fName,
+                LastName: lName,
+                ID: hdnID
+            });
+            var dataString = JSON.stringify(person);
+            $.ajax({
+                contentType: "application/json",
+                type: "POST",
+                url: 'http://localhost:1427/person',
+                data: per,
+                success: function (data, status, xhr) {
+
+                    // 1: Add Record
+                    // 2: Update Record
+                    // 3: Exist Record
+                    var message = "";
+                    if (data == '1') {
+                        message = "Person details succefully Added...";
+                        var fullName = 'Succefully Added Person: ' + fName + ' ' + lName;
+                        $("#lblAddText").text(fullName);
+                        GetPersonList();
+                    }
+                    else if (data == '2') {
+                        var fullName = 'Succefully Updated: ID= ' + hdnID + ' and Name = ' + fName + ' ' + lName;
+                        $("#lblUpdateText").text(fullName);
+                        GetPersonList();
+                        $("#lblAddText").text("");
+                    }
+                    else if (data == '3') {
+                        message = "Person details aleready Exist...";
+                        alert(message);
+                    }
+                    else {
+                        message = "Failure to Add persond details...";
+                        alert(message);
+                    }
+
+
+                    ClearData();
+                },
+                error: function (xhr, status, error) {
+                    alert('Update Error occurred - ' + error);
+                }
+            })
+        } else {
+            alert("Firstname and Lastname should not be empty");
+        }
+    }
+
+    function ClearData() {
+        $("#txtFirstName").val("");
+        $("#txtLastName").val("");
+        $("#txtSearchFirstName").val("");
+        $("#txtSearchLastName").val("");
+        $("#txtUpdFirstName").val("");
+        $("#txtUpdLastName").val("");
+        $("#hdnID").val("");
+        $("#lblDeleteText").text("");
+        $("#lblName").text("");
+        $("#txtID").val("");
+
+    }
+    function LableClear() {
+        $("#lblUpdateText").text("");
+    }
+
+    function GetPersonList() {
+        $('#lstPersons')[0].options.length = 0;
+        var lstPersons = $('#lstPersons');
+        $.ajax(
+            {
+                url: 'http://localhost:1427/personlist',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var persons = JSON.parse(data);
+                    //var htmlstr = '<table class="table"><tr><th>ID</th><th>Name</th></tr>'
+                    var htmlstr = '<table id="lstPersonTable" class="table"><tr><th>ID</th><th>Name</th><th></th></tr>'
+                    for (var p in persons) {
+                        lstPersons.append(
+                            $('<option></option>').val(persons[p].ID).html(persons[p].FirstName + ' ' + persons[p].LastName)
+                        );
+                        //htmlstr += '<tr><td>' + persons[p].ID + '</td><td>' + persons[p].FirstName + ' ' + persons[p].LastName + '</td>'
+                        //The below code is replaced with the above code to accomadate for delete action
+                        htmlstr += '<tr id=' + persons[p].ID+'><td>' + persons[p].ID + '</td><td>' + persons[p].FirstName + ' ' + persons[p].LastName + '</td><td><button id=' + persons[p].ID + ' onclick="return deletePersonFromList(\''+persons[p].ID+'\');">delete</button></td>'                        
+                    }
+                    htmlstr += '</table>';
+
+                    $("#PersonListDiv").html(htmlstr);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+    }
+    $(document).ready(function () {
+        $("#lstPersons").removeAttr('multiple');
+        GetPersonList();
+
+        $("#lblName").click(function () {
+
+            if ($('#hdnID').val() != "") {
+                var FirstName = $("#txtSearchFirstName").val();
+                var LastName = $("#txtSearchLastName").val();
+                var ID = $('#hdnID').val();
+            } else {
+                alert("Search result not found...");
+            }
+
+        });
+
+    });
+
+    
+    function deletePersonFromList(personID) {
+        $('table#lstPersonTable tr#'+personID).remove();
+    }
+
+    function DeletePersonDetails() {
+        var selectedItem = $('#lstPersons').val();
+        var selectedText = "";
+
+        var selected = $("[id*=lstPersons] option:selected");
+        selected.each(function () {
+            selectedText += $(this).html();
+        });
+        LableClear();
+        if (selectedItem != "-1" && selectedItem != "") {
+            $.ajax(
+                {
+                    url: 'http://localhost:1427/deleteperson?id=' + selectedItem,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data == "Success")
+                            $("#lblDeleteText").text('Deleted Person= ' + selectedText);
+                        else
+                            alert('Person is not available in json file');
+                        GetPersonList();
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error in Delete");
+                    }
+                });
+        }
+        else {
+            alert("Please selec person from list");
+        }
+    }
+</script>
+@*Add Person*@
+<div class="row">
+    <div class="col-sm-6 text-left"><h3>Add Person Details:</h3></div>
+</div>
+<div class="row">
+    <div class="col-md-2 text-right">First Name:</div>
+    <div class="col-md-10"><input id="txtFirstName" type="text" class="form-control" /></div>
+</div>
+<div class="row">
+    <div class="col-sm-2 text-right">Last Name:</div>
+    <div class="col-sm-3"><input id="txtLastName" type="text" class="form-control" /></div>
+</div>
+<div class="row">
+    <div class="col-sm-6"><label id="lblAddText" style="cursor:pointer"></label></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-6">
+        <button id="btnAdd" onclick="AddPerson('1')" class="btn" style="width:150px;">Add Person</button>
+    </div>
+</div>
+
+<hr />
+@*Search Person*@
+<div class="row">
+    <div class="col-sm-6 text-left"><h3>Search Person Details:</h3></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-2 text-right">First Name:</div>
+    <div class="col-sm-4"><input id="txtSearchFirstName" type="text" class="form-control" /></div>
+</div>
+<div class="row">
+    <div class="col-sm-2 text-right">Last Name:</div>
+    <div class="col-sm-4"><input id="txtSearchLastName" type="text" class="form-control" /></div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-1"><button id="btnSearch" onclick="SearchPersonDetails()" class="btn" style="width:150px;">Search Person</button></div>
+</div>
+<div class="row">
+    <div class="col-sm-6"><div id="lblName" style="cursor:pointer"></div></div>
+</div>
+@*Update Person*@
+<hr />
+<div class="row">
+    <div class="col-sm-6 text-left"><h3>Update Person Details:</h3></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-2 text-right">ID:</div>
+    <div class="col-sm-4"><input id="txtID" type="text" class="form-control" readonly /></div>
+</div>
+<div class="row">
+    <div class="col-sm-2 text-right">First Name:</div>
+    <div class="col-sm-4"><input id="txtUpdFirstName" type="text" class="form-control" /></div>
+</div>
+<div class="row">
+    <div class="col-sm-2 text-right">Last Name:</div>
+    <div class="col-sm-4"><input id="txtUpdLastName" type="text" class="form-control" /></div>
+    <input type="hidden" id="hdnID" />
+</div>
+<div class="row">
+    <div class="col-sm-8"><label id="lblUpdateText"></label></div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-1"><button id="btnUpdate" onclick="AddPerson('2')" class="btn" style="width:150px;">Update Person</button></div>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-sm-6 text-left"><h3>Delete Person:</h3></div>
+</div>
+@*Delete person*@
+<div class="row">
+    <div class="col-sm-2 text-right">Select Person:</div>
+    <div class="col-sm-4">
+        @Html.ListBox("lstPersons", new List<SelectListItem>(), new { id = "lstPersons", Size = 10, style = "width: 100%;" })
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6"><label id="lblDeleteText"></label></div>
+</div>
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-1"><button id="btnDelete" onclick="DeletePersonDetails()" class="btn" style="width:150px;">Delete Person</button></div>
+
+</div>
+<hr />
+<div class="row">
+    <div class="col-sm-6 text-left"><h3>List Persons:</h3></div>
+</div>
+<div class="row">
+    <div id="PersonListDiv" class="col-sm-6" ></div>
+    
+</div>
+
+
+

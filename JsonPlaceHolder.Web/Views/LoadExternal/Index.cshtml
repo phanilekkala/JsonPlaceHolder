@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+
+    
+
+    
+    $(document).ready(loadContent);
+    function loadContent() {
+        var QueryURL = "https://corsproxy.github.io/";
+        $.get(QueryURL, function (data) {
+            var content = $(data).find("section#how.grey").text();
+            $('#divResult0').append(content);
+            $('#divResult0').css('background-color', '#add8e6');
+
+            var text = $('#divResult0').text();
+           
+            //alert(text);
+            var thirdChar = '';
+            var num = 3;
+            for (var i = 3; i < text.length; i += num) {
+                thirdChar += text.charAt(i);
+            }
+            
+            $('#divResult1').html(thirdChar);
+            $('#divResult1').css({ "font-size": "16px" });
+        });
+        
+
+   }
+</script>
+<h2>LoadExternal</h2>
+<div class="row" id="divResult0"></div>
+<br />
+<div class="row" id="divResult1"></div>
+
