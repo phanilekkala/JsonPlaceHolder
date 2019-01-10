@@ -60,6 +60,8 @@
         var fName = "";
         var lName = "";
         var hdnID = "";
+        var doj = "";
+        var address = "";
 
         if (opt == '2') {   //update
             fName = $('#txtUpdFirstName').val();
@@ -69,6 +71,8 @@
         else {  //insert
             fName = $('#txtFirstName').val();
             lName = $('#txtLastName').val();
+            address = $('#txtAddress').val();
+            doj = $('#txtDoj').val();
         }
         if (fName != "" && lName != "") {
             var person = { FirstName: fName, LastName: lName };
@@ -154,7 +158,7 @@
                         lstPersons.append(
                             $('<option></option>').val(persons[p].ID).html(persons[p].FirstName + ' ' + persons[p].LastName)
                         );
-                        //htmlstr += '<tr><td>' + persons[p].ID + '</td><td>' + persons[p].FirstName + ' ' + persons[p].LastName + '</td>'
+                        htmlstr += '<tr><td>' + persons[p].ID + '</td><td>' + persons[p].FirstName + ' ' + persons[p].LastName + '</td>'
                         //The below code is replaced with the above code to accomadate for delete action
                         htmlstr += '<tr id=' + persons[p].ID+'><td>' + persons[p].ID + '</td><td>' + persons[p].FirstName + ' ' + persons[p].LastName + '</td><td><button id=' + persons[p].ID + ' onclick="return deletePersonFromList(\''+persons[p].ID+'\');">delete</button></td>'                        
                     }
@@ -231,8 +235,8 @@
     <div class="col-md-10"><input id="txtFirstName" type="text" class="form-control" /></div>
 </div>
 <div class="row">
-    <div class="col-sm-2 text-right">Last Name:</div>
-    <div class="col-sm-3"><input id="txtLastName" type="text" class="form-control" /></div>
+    <div class="col-md-2 text-right">Last Name:</div>
+    <div class="col-md-3"><input id="txtLastName" type="text" class="form-control" /></div>
 </div>
 <div class="row">
     <div class="col-sm-6"><label id="lblAddText" style="cursor:pointer"></label></div>
